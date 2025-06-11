@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Custom Connections Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(4, 150px);
+      grid-gap: 10px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    .word {
+      background: white;
+      border: 2px solid #aaa;
+      padding: 15px;
+      cursor: pointer;
+      border-radius: 6px;
+      user-select: none;
+    }
+    .selected {
+      background: #d0eaff;
+      border-color: #0078D7;
+    }
+    #message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧠 Connections</h1>
+<p>Select 4 related words and click "Submit Group".</p>
+
+<div id="grid"></div>
+<button onclick="submitGroup()">Submit Group</button>
+<div id="message"></div>
+
+<script>
+  const categories = [
+    {
+      name: "Carly - Jols",
+      words: ["Thursday night jols", "lounge yoga", "bubble tea bet", "5am shots"]
+    },
+    {
+      name: "Jules - Girl media",
+      words: ["carry diaries", "giggly squad", "any madisons night", "lush"]
+    },
+    {
+      name: "Ninz - Inside jokes",
+      words: ["undigested carrots", "What they Want at Monte", "Delphinus delphis", "Let's get wavy"]
+    },
+    {
+      name: "Tash - Emotional support friends",
+      words: ["Flight buddies", "crafters", "friend therapists", "date outfit creators"]
+    },
+    {
+      name: "Chrissy - Soft life activities",
+      words: ["Plant love", "community runs", "paint night", "cheesecake"]
+    }
+  ];
+
+  let words = categories.flatMap(cat => cat.words);
+  words = words.sort(() => Math.random() - 0.5); // Shuffle
+  const grid = document.getElementById("grid");
+  const selected = new Set();
+  const foundGroups = [];
+
+  function createGrid() {
+    grid.innerHTML = "";
+    words.forEach(word => {
+      const div = document.createElement("div");
+      div.textContent = word;
+      div.className = "word";
+      div.onclick = () => toggleSelect(div, word);
+      grid.appendChild(div);
+    });
+  }
+
+  function toggleSelect(div, word) {
+    if (selected.has(word)) {
+      selected.delete(word);
+      div.classList.remove("selected");
+    } else {
+      if (selected.size < 4) {
+        selected.add(word);
+        div.classList.add("selected");
+      }
+    }
+  }
+
+  function submitGroup() {
+    if (selected.size !== 4) {
+      showMessage("Select exactly 4 words.", "red");
+      return;
+    }
+
+    const selectedWords = Array.from(selected);
+    for (let category of categories) {
+      if (foundGroups.includes(category.name)) continue;
+      const correctSet = new Set(category.words);
+      if (selectedWords.every(w => correctSet.has(w))) {
+        showMessage(`✅ Correct group: ${category.name}`, "green");
+        foundGroups.push(category.name);
+        selected.clear();
+        createGrid(); // Re-render to remove selected highlights
+        return;
+      }
+    }
+
+    showMessage("❌ Not a correct group. Try again.", "red");
+  }
+
+  function showMessage(text, color) {
+    const msg = document.getElementById("message");
+    msg.textContent = text;
+    msg.style.color = color;
+  }
+
+  createGrid();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,111 @@
+---
+title: "🧩 Mini Crossword"
+format: html
+engine: knitr
+---
+
+Happy Birthday Kirst!
+
+```{r, echo=FALSE, results='asis'}
+library(htmltools)
+
+grid <- matrix(c(
+  "C", "A", "P", "E", "",
+  "", "", "R", "", "",
+  "", "T", "O", "W", "N",
+  "", "", "E", "", "",
+  "S", "U", "N", "", ""
+), nrow = 5, byrow = TRUE)
+
+cell_input <- function(row, col) {
+  id <- paste0("cell_", row, "_", col)
+  div(
+    class = if (grid[row, col] != "") "cell white" else "cell black",
+    if (grid[row, col] != "") {
+      tags$input(
+        type = "text",
+        maxlength = 1,
+        id = id,
+        class = "cell-input",
+        oninput = "checkAnswer(this)"
+      )
+    }
+  )
+}
+
+grid_html <- div(
+  class = "crossword",
+  lapply(1:5, function(row) {
+    div(class = "row", lapply(1:5, function(col) cell_input(row, col)))
+  })
+)
+
+# Write out clues and the grid HTML
+cat("
+<h2>Clues</h2>
+<h3>Across</h3>
+<ol>
+<li>South African city</li>
+<li>Opposite of moon</li>
+</ol>
+<h3>Down</h3>
+<ol>
+<li>Headwear</li>
+<li>Direction</li>
+</ol>
+")
+
+print(grid_html)
+
+cat("
+<style>
+.crossword {
+  display: grid;
+  grid-template-rows: repeat(5, 40px);
+  gap: 2px;
+}
+.row {
+  display: grid;
+  grid-template-columns: repeat(5, 40px);
+}
+.cell {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.white {
+  background: white;
+  border: 1px solid #ccc;
+}
+.black {
+  background: black;
+}
+.cell-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  text-align: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+</style>
+
+<script>
+const answers = {
+  'cell_1_1': 'C', 'cell_1_2': 'A', 'cell_1_3': 'P', 'cell_1_4': 'E',
+  'cell_2_3': 'R',
+  'cell_3_2': 'T', 'cell_3_3': 'O', 'cell_3_4': 'W', 'cell_3_5': 'N',
+  'cell_4_3': 'E',
+  'cell_5_1': 'S', 'cell_5_2': 'U', 'cell_5_3': 'N'
+};
+
+function checkAnswer(input) {
+  const val = input.value.toUpperCase();
+  const correct = answers[input.id];
+  input.style.color = (val === correct) ? 'green' : 'black';
+}
+</script>
+")
+```
